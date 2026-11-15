@@ -40,7 +40,7 @@ jobs:
       - run: python scripts/fetch_models.py
       - uses: actions/cache@v4   # recitation-cache: authentic audio is downloaded once, then reused
         with: {path: data/cache/recitation, key: recitation-v1}
-      - run: scripts/state.sh restore
+      - run: bash scripts/state.sh restore
       - run: python -m ivs fetch-recitation || true   # warm the authentic-recitation cache for all curated verses (never fatal)
       - name: Tick (generate, gate, publish if allowed)
         id: run
@@ -49,7 +49,7 @@ jobs:
       - name: Refresh view/like counts for the dashboard (never fatal)
         if: always()
         run: python -m ivs stats || true
-      - run: scripts/state.sh save
+      - run: bash scripts/state.sh save
         if: always()
       - name: Open a review issue for items waiting on you
         if: always()
