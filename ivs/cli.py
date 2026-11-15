@@ -141,7 +141,7 @@ def main(argv=None):
         from .scheduler import tick
         from .publish_youtube import YouTubePublisher
         yt_on = cfg["publishing"]["platforms"]["youtube"]["enabled"]
-        res = tick(pipe, YouTubePublisher(cfg, pipe.db) if yt_on else None)
+        res = tick(pipe, YouTubePublisher(cfg, pipe.db) if yt_on else None, extra=1 if os.environ.get("IVS_MAKE_NOW") == "1" else 0)
         rep = CI.build_report(pipe, res); CI.write_outputs(rep); print(json.dumps(rep, indent=1, ensure_ascii=False))
         if rep["errors"] or any(i["status"] == "failed" for i in rep["generated"]): sys.exit(1)
     elif a.cmd == "ci-act":
