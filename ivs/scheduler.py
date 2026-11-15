@@ -16,14 +16,17 @@ def due_slots(cfg: dict, now: dt.datetime, db) -> list[str]:
                 out.append(tag)
     return out
 
-def tick(pipe, publisher=None, now: dt.datetime | None = None) -> dict:
+def tick(pipe, publisher=None, now: dt.datetime | None = None, extra: int = 0) -> dict:
     """One scheduler iteration: recover, generate due slots, publish approved items if mode allows."""
     cfg, db = pipe.cfg, pipe.db
     now = now or dt.datetime.now(dt.timezone.utc)
     res = {"recovered": pipe.resume_incomplete(), "generated": [], "skipped_slots": [], "published": [], "errors": []}
     if db.setting("paused") == "1":
         return res
-    for tag in due_slots(cfg, now, db):
+    tags = due_slots(cfg, now, db)
+    stamp = now.astimezone(ZoneInfo(cfg['timezone'])).strftime('%Y-%m-%dT%H:%M:%S')
+    tags += [f'{stamp}-manual{k}' for k in range(max(0, extra))]      # 'make a video now' from a manual workflow run, outside the daily slots
+    for tag in tags:
         iid = pipe.make_next(scheduled_for=tag)
         if iid is None:
             res["skipped_slots"].append(tag)
