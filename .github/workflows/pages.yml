@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.11", cache: pip}
       - run: pip install -r requirements.txt
-      - run: scripts/state.sh restore
+      - run: bash scripts/state.sh restore
       - run: python -m ivs build-site --out site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
