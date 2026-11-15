@@ -1,0 +1,29 @@
+# Dashboard website on GitHub Pages (free). Rebuilds after every daily run and on demand.
+# One-time: repo Settings > Pages > Source = "GitHub Actions" (easy_setup.py does this for you).
+name: dashboard-site
+on:
+  workflow_run: {workflows: [daily-video, approve], types: [completed]}
+  workflow_dispatch:
+permissions: {contents: read, pages: write, id-token: write}
+concurrency: {group: pages, cancel-in-progress: true}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: scripts/state.sh restore
+      - run: python -m ivs build-site --out site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: site}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.d.outputs.page_url }}"}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

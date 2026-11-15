@@ -1,0 +1,117 @@
+# Islamic Video Engine - sample configuration (all values have safe defaults)
+zero_cost_mode: true            # never changes; any paid-provider setting is refused at startup
+timezone: Asia/Karachi
+paths:
+  db: data/ivs.sqlite3
+  output: output
+  cache: data/cache
+schedule:
+  videos_per_day: 1
+  times: ["18:00"]              # local time in `timezone`
+  categories: [quran_ayah, hadith, story]   # rotation pool (story = human-authored files in content/stories)
+publishing:
+  mode: approval                # approval | auto | draft
+  description_style: viral      # viral | classic | minimal (choose in the dashboard Settings page)
+  channel_contact: ""           # shown in the recitation takedown line; empty = "this channel's About page"
+  platforms:
+    youtube: {enabled: false, privacy: public, category_id: "27"}   # 27 = Education
+video:
+  width: 1080
+  height: 1920
+  fps: 24
+  target_seconds: [40, 59]
+  pace: fast                    # fast | normal. Fast = tighter holds, quicker word reveals/cuts (6 scenery changes a minute), faster English voice. Recitation is never sped up.
+  word_icons: true              # a drawn icon pops up at the moment each picture-word is spoken (sun, mountain, ship, bird, heart, book ...). Timing is estimated.
+  max_seconds: 59               # HARD cap: always under 1 minute (QC fails anything longer; render retries leaner first)
+  split_seconds: 46             # long stories are cut into parts of about this many seconds so each part fits under the cap
+  length_seconds: 54            # aim for ~1 min: short verses replay the recitation once + a quiet reflection hold; nothing invented
+  subtitle_mode: ar_ur_en_alternating   # ar_ur | ar_en | ar_ur_en_alternating | ar_ur_en_stacked
+  story_subtitle_mode: ar_ur_en_stacked   # stories: Arabic + Urdu + English on one screen when legible
+  watermark: ""                 # e.g. "@yourchannel"
+  scenery: {enabled: true}      # every video (ayat, hadith, stories) gets a faceless animated landscape chosen from the verified text's meaning
+  vfx:                          # all generated locally, no stock footage
+    enabled: true
+    kenburns: true              # slow zoom/drift on the background
+    particles: true             # drifting gold dust (screen blended)
+    text_reveal: true           # fade + ease-up of text
+look:                           # finishing pass on EVERY video (choose a preset or switch each effect on the dashboard: Look & Story)
+  enabled: true
+  grade: auto                   # auto = matches the theme | none | warm_dawn | cool_dusk | deep_night | sepia_archive | documentary_muted | soft_pastel | high_clarity | filmic_natural
+  grain: true
+  vignette: true
+  sharpen: true
+  bloom: true
+  flicker: false
+  push_in: true
+  handheld: false
+  cut_punch: true
+  cut_flash: true
+  progress_bar: true
+  edge_fades: true
+  comment_question: true        # one reflective question in the outro and the description
+review:
+  auto_approve_quran: true      # verified Quran-ayah videos (pinned text + QC passed) publish with no review notice. Stories, hadith and AI drafts ALWAYS wait for a human.
+script:
+  enabled: true                 # context line before the verse, takeaway after
+  require_review: true          # editorial lines are NOT scholar-reviewed; items wait in needs_review until approved
+  hook_variants: true           # extra non-clickbait opening lines compete with the standard ones (same scoring and filters)
+  hook_brevity: true            # prefer hooks short enough to read in the first ~3 seconds
+  title_scoring: true           # choose the best-scoring title instead of the first unused one
+  spoken_style: true            # narrator text only: 94:5 -> "chapter 94, verse 5", (SAW) -> "peace be upon him", symbols spoken
+  editorial_lint: true          # flag promises, rulings, invented quotes, shouting, over-long or hard lines: a person must review them
+  series_teaser: true           # "Part 1 of 3: part 2 is next." on split stories
+  beat_map: true                # emotional beat map in the Director's treatment
+audio:
+  copyright_free: true          # voice + sound: no Edge service voices, no NC-licence models, sound effects CC0/public-domain only (no attribution needed). Recitation is separate: see docs/LICENSES.md
+  recitation:
+    enabled: true
+    provider: everyayah         # downloaded on YOUR machine; see docs/LICENSES.md
+    permission_verified: true   # MUST be set true by you after checking the recording's reuse/monetization terms; until then videos are text-only
+    permission_note: "Owner confirmed 2026-11-08: non-monetized channel, recitation (EveryAyah, Alafasy) used with on-screen reciter credit. Terms not independently checked by the assistant."        # e.g. "EveryAyah terms checked 2026-11-01: <what you verified>"
+    reciter_display: "Mishary Alafasy"   # shown on screen; check that it matches the chosen reciter folder
+    style: ""                   # "Murattal" / "Mujawwad" only if you have verified it for this recording; blank = not shown
+    reciter: Alafasy_128kbps
+    base_url: https://everyayah.com/data
+    mirrors: [everyayah, islamic_network]   # tried in order; both are the SAME reciter (Alafasy). Never synthetic audio.
+    islamic_edition: ar.alafasy            # cdn.islamic.network edition for the same reciter; terms: alquran.cloud/terms-and-conditions
+    islamic_bitrate: 128
+  narration:                    # stories only; never used for Quran text. 100% free + local
+    enabled: true
+    voice: bm_george            # Kokoro voices: bm_george/bm_fable/bm_lewis (British male), am_michael/am_adam (US male), af_heart/af_bella (female)
+    humanize: true              # sentence-by-sentence synthesis with natural pauses and tiny pace variation
+    speed: 1.12                 # English voice speed (Kokoro); 0.95 = calm, 1.12 = brisk
+    all_videos: true            # English voice on every video (Kokoro/eSpeak or optional neural engines); the Quran itself is only ever the real recitation
+    story_languages: [en]           # spoken narration is English only (Kokoro). Urdu stays as on-screen text/subtitles. Add ur for eSpeak Urdu speech
+    engines: [chatterbox, qwen3]   # (fish removed: its weights are non-commercial CC-BY-NC-SA, not copyright-free; add back only if you accept that) optional neural voices, tried in order; each activates ONLY if installed (fish: set FISH_SPEECH_URL). Falls back to Kokoro/eSpeak. Never for Quran.
+    allow_edge: false            # OPT-IN: human-like Microsoft neural voices via edge-tts (online, unofficial, free). pip install edge-tts. Never used for Quran.
+    edge_voices: {en: en-GB-RyanNeural, ur: ur-PK-AsadNeural}
+    edge_rate: "-5%"
+  sfx:
+    openverse:                  # real recorded effects (CC0 / CC BY / PDM only), pinned per role, synthetic fallback
+      enabled: auto             # false = always synthetic
+      max_mb: 15
+      verify_with_earshot: false  # optional: needs `pip install git+https://github.com/Leonxlnx/earshot` (torch + CLAP models, slow)
+  background_music: false       # never during recitation
+dedupe:
+  recent_topic_window: 6        # a surah / hadith collection / story used in the last N videos is skipped (variety; parts of a long story get spaced out)
+  similarity_threshold: 0.82    # char-ngram cosine on normalized text
+quran:
+  arabic_edition: ara-quranuthmanihaf
+  crosscheck_edition: ara-quransimple
+  urdu_edition: urd-fatehmuhammadja
+  english_edition: eng-abdullahyusufal
+
+js_fx:                          # PixiJS overlay, HyperFrames frame, GL Transitions, p5.js geometric backgrounds (needs Node>=22 + `npm ci` in js/)
+  enabled: auto                 # auto = use if available, false = off
+  transitions: true
+  transition_seconds: 0.6
+  pixi: true
+  frame: true                   # HyperFrames animated geometric border (Quran/hadith videos)
+  p5: true
+three_d:              # Blender 3D shots (slow, CPU). Only used when pre-rendered: `python -m ivs film <story>`
+  enabled: true
+  tier: auto            # auto = by hardware (LOW/MEDIUM/HIGH) | draft 360x640@8fps | hd 540x960@12 | full 1080x1920@24
+  max_seconds: auto     # 3D budget per video; the rest of the film uses the 2.5D engine
+  engine: CYCLES
+hardware:
+  auto: true            # python -m ivs hardware

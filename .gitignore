@@ -1,0 +1,13 @@
+.env
+.venv/
+data/*.sqlite3
+data/cache/
+data/youtube_token.json
+client_secret*.json
+output/
+__pycache__/
+*.pyc
+*.log
+site/
+js/node_modules/
+assets/models/

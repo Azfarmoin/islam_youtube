@@ -1,0 +1,258 @@
+"""The 100-item improvement list for illustration and storytelling.
+status: 'done'    = built and switchable (cfg path set) or always on (cfg None)
+        'planned' = not built yet. Shown honestly on the dashboard; no switch.
+cfg paths are the real config keys; the dashboard writes them to data/overrides.yaml and can push them to GitHub."""
+from __future__ import annotations
+
+# (id, category, name, description, status, cfg_path or None)
+_R = [
+ # ---- Colour and grade
+ ("grade", "Colour and grade", "Mood-matched colour grade", "Picks a gentle grade from the theme (warm for hope, cool for warnings, deep night for dua).", "done", ("look", "grade")),
+ ("lifted_blacks", "Colour and grade", "Lifted blacks, no crushed shadows", "Grades keep detail in the dark; no teal-orange or HDR look.", "done", None),
+ ("treatment_palette", "Colour and grade", "Per-story palette from the Director's treatment", "Each story gets its own typography palette and grade.", "done", None),
+ ("sky_palettes", "Colour and grade", "Day, night and dawn skies", "Scenery switches between sky palettes to match the moment.", "done", None),
+ ("grain", "Colour and grade", "Film grain", "Fine moving grain so flat gradients feel photographic.", "done", ("look", "grain")),
+ ("vignette", "Colour and grade", "Vignette", "Soft dark edges that pull the eye to the centre.", "done", ("look", "vignette")),
+ ("sharpen", "Colour and grade", "Sharpen for phone screens", "Light sharpening so small text stays crisp after compression.", "done", ("look", "sharpen")),
+ ("contrast_check", "Colour and grade", "Automatic text-contrast check", "Fail a frame when caption contrast is too low.", "planned", None),
+ ("palette_from_scene", "Colour and grade", "Caption colours sampled from the scenery", "Accent colour of captions follows the picture.", "planned", None),
+ ("seasonal_palettes", "Colour and grade", "Seasonal palettes (Ramadan, Jumu'ah)", "Subtle palette shifts on special days.", "planned", None),
+ # ---- Light and atmosphere
+ ("bloom", "Light and atmosphere", "Soft bloom glow", "Highlights glow gently, like light through haze.", "done", ("look", "bloom")),
+ ("flicker", "Light and atmosphere", "Candle-light flicker", "A slow living brightness variation.", "done", ("look", "flicker")),
+ ("particles", "Light and atmosphere", "Drifting gold dust", "Particles float across every scene.", "done", ("video", "vfx", "particles")),
+ ("pixi", "Light and atmosphere", "PixiJS sparkle layer", "A generated sparkle overlay.", "done", ("js_fx", "pixi")),
+ ("frame_border", "Light and atmosphere", "Animated geometric border", "Hyperframes border on verse and hadith videos.", "done", ("js_fx", "frame")),
+ ("stars", "Light and atmosphere", "Twinkling stars", "Night skies have animated stars.", "done", None),
+ ("light_rays", "Light and atmosphere", "Light rays through clouds", "Animated god-rays for hope and guidance scenes.", "planned", None),
+ ("moon_water", "Light and atmosphere", "Moonlight shimmer on water", "Reflective shimmer for night sea scenes.", "planned", None),
+ ("mist", "Light and atmosphere", "Valley mist", "Layered drifting mist for calm scenes.", "planned", None),
+ ("light_leaks", "Light and atmosphere", "Warm light leaks", "Soft colour leaks at scene changes.", "planned", None),
+ # ---- Camera and motion
+ ("push_in", "Camera and motion", "Slow push-in on the whole video", "A gentle zoom that builds intensity over the minute.", "done", ("look", "push_in")),
+ ("kenburns", "Camera and motion", "Drift on backgrounds", "Slow Ken Burns movement on still backgrounds.", "done", ("video", "vfx", "kenburns")),
+ ("handheld", "Camera and motion", "Handheld sway", "A tiny organic camera wobble (adds a small zoom to hide edges).", "done", ("look", "handheld")),
+ ("cut_punch", "Camera and motion", "Punch-in on every cut", "A quick zoom accent at each scene change.", "done", ("look", "cut_punch")),
+ ("parallax", "Camera and motion", "Parallax scenery layers", "Foreground and background drift at different speeds.", "done", None),
+ ("blender_3d", "Camera and motion", "Blender 3D key shots", "Pre-rendered low-poly 3D shots for key moments.", "done", ("three_d", "enabled")),
+ ("whip_pan", "Camera and motion", "Whip-pan between scenes", "A fast blurred pan as a transition.", "planned", None),
+ ("rack_focus", "Camera and motion", "Rack focus on the key word", "Blur shifts to the picture the word names.", "planned", None),
+ ("dolly_zoom", "Camera and motion", "Dolly-zoom on the reveal", "A vertigo effect for the turning point of a story.", "planned", None),
+ ("orbit_3d", "Camera and motion", "Orbit camera on 3D landmarks", "Slow orbit around a low-poly building or ship.", "planned", None),
+ # ---- Typography and captions
+ ("hook_words", "Typography and captions", "Word-by-word hook reveal", "The opening line appears word by word.", "done", None),
+ ("stacked_text", "Typography and captions", "Arabic, Urdu and English stacked", "All three languages shown together where it fits.", "done", None),
+ ("text_reveal", "Typography and captions", "Text fade and ease-up", "Captions glide in instead of popping.", "done", ("video", "vfx", "text_reveal")),
+ ("progress_bar", "Typography and captions", "Thin gold progress bar", "A slim bar shows how far through the video you are.", "done", ("look", "progress_bar")),
+ ("auto_font", "Typography and captions", "Auto font size by line length", "Long lines shrink to fit, short ones grow.", "done", None),
+ ("sound_off_text", "Typography and captions", "Always-on text for sound-off viewers", "Every spoken line is also on screen.", "done", None),
+ ("keyword_color", "Typography and captions", "Key-word highlight colour", "The word being explained gets an accent colour.", "planned", None),
+ ("karaoke", "Typography and captions", "Karaoke highlight synced to the voice", "Needs forced alignment of the narration.", "planned", None),
+ ("calligraphy_write_on", "Typography and captions", "Arabic calligraphy write-on", "Verse appears as if being written.", "planned", None),
+ ("safe_zone_guide", "Typography and captions", "Shorts UI safe-zone guide", "Preview overlay of where the app covers the picture.", "planned", None),
+ # ---- Scenery and illustration
+ ("scenery", "Scenery and illustration", "Animated faceless landscapes", "Every video gets an animated scene, no stock footage.", "done", ("video", "scenery", "enabled")),
+ ("props", "Scenery and illustration", "Props: palms, tents, minarets, boats, pines", "Drawn scenery elements that match the story.", "done", None),
+ ("theme_scenery", "Scenery and illustration", "Scenery matched to the meaning", "Scene chosen from the words, not at random.", "done", None),
+ ("scenery_changes", "Scenery and illustration", "3 to 6 scenery changes per video", "The picture keeps changing through the minute.", "done", None),
+ ("word_icons", "Scenery and illustration", "Word-synced icons", "A drawn icon pops up when each picture-word is spoken.", "done", ("video", "word_icons")),
+ ("p5_geometry", "Scenery and illustration", "Islamic geometric patterns (p5.js)", "Generative star lattices for geometric scenes.", "done", ("js_fx", "p5")),
+ ("day_night_arc", "Scenery and illustration", "Day-to-night arc across a story", "Sky gradually changes as the story moves.", "planned", None),
+ ("weather", "Scenery and illustration", "Rain, wind and sandstorm layers", "Weather that matches the text.", "planned", None),
+ ("ink_style", "Scenery and illustration", "Hand-drawn ink style", "An illustrated filter for the whole scene.", "planned", None),
+ ("more_icons", "Scenery and illustration", "100+ icons (currently 30)", "A bigger icon library for more words.", "planned", None),
+ # ---- Characters and actions (faceless)
+ ("silhouette_actions", "Characters and actions", "Faceless silhouettes with meaning-based actions", "Walking, looking, carrying, chosen from the sentence.", "done", None),
+ ("flocks", "Characters and actions", "Flocks of birds", "A moving band of birds for the relevant verses.", "done", None),
+ ("caravan", "Characters and actions", "Caravan silhouettes", "Travelling groups cross the horizon.", "done", None),
+ ("dua_hands", "Characters and actions", "Hands raised in dua (silhouette)", "A faceless silhouette for supplication scenes.", "planned", None),
+ ("crowd", "Characters and actions", "Crowd silhouettes", "Communities and nations as moving crowds.", "planned", None),
+ ("shadow_puppets", "Characters and actions", "Shadow-puppet storytelling", "A shadow-theatre style for old stories.", "planned", None),
+ ("animals", "Characters and actions", "Animated animals", "Camel, elephant, whale as moving silhouettes (icons exist today).", "planned", None),
+ ("hands_closeup", "Characters and actions", "Hands-only close-ups", "Writing, giving, holding, without faces.", "planned", None),
+ ("object_cutaways", "Characters and actions", "Object cutaways", "Lamp, key, door shots as story beats.", "planned", None),
+ ("symbolic_light", "Characters and actions", "Symbolic light for the unseen", "Light and geometry stand in for what is never depicted.", "planned", None),
+ # ---- Transitions and pacing
+ ("gl_transitions", "Transitions and pacing", "GL transitions between scenes", "Real shader transitions at scene changes.", "done", ("js_fx", "transitions")),
+ ("fast_pace", "Transitions and pacing", "Fast pace", "Tighter holds and quicker word reveals (choose on the Settings page).", "done", None),
+ ("cut_flash", "Transitions and pacing", "Cut flash", "A brief brightness accent at each scene change.", "done", ("look", "cut_flash")),
+ ("edge_fades", "Transitions and pacing", "Fade in and out", "Soft start and end so loops feel clean.", "done", ("look", "edge_fades")),
+ ("silent_beat", "Transitions and pacing", "Silent beat before the reveal", "The Director can drop sound for a moment.", "done", None),
+ ("hard_cap", "Transitions and pacing", "Hard 59-second cap", "Every video stays under a minute; render retries leaner.", "done", None),
+ ("match_cut", "Transitions and pacing", "Match cuts on shape", "Cut between similar shapes (sun to coin).", "planned", None),
+ ("beat_cuts", "Transitions and pacing", "Cuts on a quiet pulse", "Scene changes land on a soft rhythm.", "planned", None),
+ ("variable_pace", "Transitions and pacing", "Variable pace by section", "Slow on the verse, quick on context.", "planned", None),
+ ("pattern_interrupt", "Transitions and pacing", "Pattern interrupt around 20 seconds", "A deliberate change to win back attention.", "planned", None),
+ # ---- Sound and sync
+ ("humanize", "Sound and sync", "Humanised English narration", "Kokoro voice, sentence by sentence with natural pauses.", "done", ("audio", "narration", "humanize")),
+ ("voice_all", "Sound and sync", "Voice on every video", "Hook, context, translation and takeaway are spoken.", "done", ("audio", "narration", "all_videos")),
+ ("sfx_actions", "Sound and sync", "Effects tied to on-screen action", "Sound effects land with what is shown.", "done", None),
+ ("ambience", "Sound and sync", "Ambience bed muted under verses", "Quiet atmosphere that never covers the Quran.", "done", None),
+ ("recitation", "Sound and sync", "Authentic recitation, never altered", "Real reciter audio at original speed and pitch.", "done", ("audio", "recitation", "enabled")),
+ ("copyright_free", "Sound and sync", "Copyright-free sound mode", "Free-licence voice and effects only.", "done", ("audio", "copyright_free")),
+ ("duck", "Sound and sync", "Ambience ducks under the voice", "Automatic volume dip while the narrator speaks.", "planned", None),
+ ("room_tone", "Sound and sync", "Room tone and light reverb on narration", "Makes the voice sit inside the scene.", "planned", None),
+ ("forced_align", "Sound and sync", "Word-accurate voice timing", "Icons and highlights land exactly on the word.", "planned", None),
+ ("loudness", "Sound and sync", "Loudness normalised for Shorts", "Consistent volume across videos.", "planned", None),
+ # ---- Story structure and hooks
+ ("hook_first", "Story structure and hooks", "Hook in the first 3 seconds", "The opening line is the strongest one.", "done", None),
+ ("hook_candidates", "Story structure and hooks", "Five scored hook candidates", "Best of five, chosen by score.", "done", None),
+ ("title_candidates", "Story structure and hooks", "Five scored title candidates", "Best of five, chosen by score.", "done", None),
+ ("context_takeaway", "Story structure and hooks", "Context and takeaway lines", "Labelled as editorial, never as tafsir.", "done", ("script", "enabled")),
+ ("treatment", "Story structure and hooks", "Director's treatment", "Emotional arc, palette and sound plan per story.", "done", None),
+ ("chapters", "Story structure and hooks", "Chapters in the description", "Timestamped chapters for stories.", "done", None),
+ ("comment_question", "Story structure and hooks", "Reflective comment question at the end", "One honest question to invite comments; also in the description.", "done", ("look", "comment_question")),
+ ("series_parts", "Story structure and hooks", "Long stories split into parts", "Each part stands alone under a minute.", "done", None),
+ ("open_loop", "Story structure and hooks", "Next-part teaser", "A line that points to the next part.", "planned", None),
+ ("callback_end", "Story structure and hooks", "Callback ending", "The last line echoes the hook.", "planned", None),
+ # ---- Retention and reach
+ ("description_style", "Retention and reach", "Viral-style description and hashtags", "Hook, call to action and up to 15 hashtags (choose the style).", "done", ("publishing", "description_style")),
+ ("thumb_studio", "Retention and reach", "Thumbnail studio", "Three concepts from real frames, best one chosen.", "done", None),
+ ("variety", "Retention and reach", "Topic variety window", "Recent topics are not repeated.", "done", None),
+ ("auto_publish", "Retention and reach", "Auto-publish verified Quran videos", "No review notice for verified ayah videos.", "done", ("review", "auto_approve_quran")),
+ ("subtitle_files", "Retention and reach", "Subtitle files for every video", "SRT and VTT sidecars are written.", "done", None),
+ ("best_time", "Retention and reach", "Best-time scheduling from analytics", "Post when your audience is awake.", "planned", None),
+ ("ab_titles", "Retention and reach", "A/B title rotation", "Swap titles after a few days and keep the winner.", "planned", None),
+ ("end_card", "Retention and reach", "End-screen next-video card", "Point viewers to the next short.", "planned", None),
+ ("playlists", "Retention and reach", "Auto playlists by theme", "Organise uploads automatically.", "planned", None),
+ ("pinned_comment", "Retention and reach", "Pinned comment with sources", "Post the verification sources as the first comment.", "planned", None),
+]
+FEATURES = [dict(id=i, category=c, name=n, desc=d, status=s, cfg=p) for i, c, n, d, s, p in _R]
+CATEGORIES = list(dict.fromkeys(f["category"] for f in FEATURES))
+
+def counts() -> dict:
+    return {"total": len(FEATURES), "done": sum(f["status"] == "done" for f in FEATURES), "planned": sum(f["status"] == "planned" for f in FEATURES),
+            "switchable": sum(f["status"] == "done" and f["cfg"] is not None for f in FEATURES)}
+
+PRESETS = {   # one click sets several switches; only look.* keys, so they are safe to push to GitHub
+    "cinematic": {"grade": "auto", "grain": True, "vignette": True, "sharpen": True, "bloom": True, "flicker": True, "push_in": True, "handheld": False, "cut_punch": True, "cut_flash": True, "progress_bar": True, "edge_fades": True, "comment_question": True},
+    "punchy":    {"grade": "auto", "grain": False, "vignette": True, "sharpen": True, "bloom": False, "flicker": False, "push_in": True, "handheld": False, "cut_punch": True, "cut_flash": True, "progress_bar": True, "edge_fades": True, "comment_question": True},
+    "calm":      {"grade": "auto", "grain": True, "vignette": True, "sharpen": False, "bloom": True, "flicker": True, "push_in": True, "handheld": False, "cut_punch": False, "cut_flash": False, "progress_bar": False, "edge_fades": True, "comment_question": True},
+    "clean":     {"grade": "none", "grain": False, "vignette": False, "sharpen": False, "bloom": False, "flicker": False, "push_in": False, "handheld": False, "cut_punch": False, "cut_flash": False, "progress_bar": False, "edge_fades": True, "comment_question": False},
+}
+
+# ======================================================================= Script writing and Director (second list of 100)
+# Same rules: 'done' = built (switch if cfg set), 'planned' = not built. Items marked "(switch elsewhere)" live on the Settings or Look & Story page.
+_S = [
+ # ---- Hooks and openings
+ ("hook_candidates", "Hooks and openings", "Several hook candidates per video", "Standard, authored and variant lines compete; the best is chosen.", "done", None),
+ ("hook_scoring", "Hooks and openings", "Transparent hook scoring", "Curiosity, emotion, relevance, clarity, naturalness and retention, each visible.", "done", None),
+ ("hook_variants", "Hooks and openings", "Hook variants", "More non-clickbait opening lines per category, through the same filters.", "done", ("script", "hook_variants")),
+ ("hook_brevity", "Hooks and openings", "Short hooks", "Prefers hooks readable in about 3 seconds (9 words).", "done", ("script", "hook_brevity")),
+ ("clickbait_filter", "Hooks and openings", "Clickbait and false-promise filter", "Rejects 'shocking', 'secret', guarantees and reward promises.", "done", None),
+ ("anti_repeat_hooks", "Hooks and openings", "No repeated openings", "Rejects a hook whose pattern or wording was used recently.", "done", None),
+ ("authored_bonus", "Hooks and openings", "Author-written hooks win ties", "A line a person wrote beats template filler.", "done", None),
+ ("hook_word_reveal", "Hooks and openings", "Hook appears word by word", "The opening line is revealed with the voice.", "done", None),
+ ("hook_shot_variety", "Hooks and openings", "Opening shot never repeats", "The Director avoids last video's first shot.", "done", None),
+ ("emotion_hooks", "Hooks and openings", "Hooks matched to detected feeling", "Pick the hook by the passage's emotion beyond a few keywords.", "planned", None),
+ # ---- Voice and narration writing
+ ("spoken_style", "Voice and narration writing", "Spoken-style text for the narrator", "Chapter/verse numbers, honorifics and symbols are spoken naturally (screen text is untouched).", "done", ("script", "spoken_style")),
+ ("humanize_voice", "Voice and narration writing", "Humanised pauses and pace", "Sentence-by-sentence delivery (switch on the Settings page).", "done", None),
+ ("voice_everywhere", "Voice and narration writing", "Narration on every video", "Hook, context, translation and takeaway are spoken (switch on the Look & Story page).", "done", None),
+ ("plain_language", "Voice and narration writing", "Plain-language check", "Flags editorial lines above about grade 9 (part of the lint switch).", "done", None),
+ ("urdu_voice", "Voice and narration writing", "Urdu narration", "Urdu lines are spoken with a free local voice (quality is basic).", "done", None),
+ ("rhythm_variation", "Voice and narration writing", "Sentence rhythm variation", "Mix short and long sentences on purpose.", "planned", None),
+ ("pronunciation_hints", "Voice and narration writing", "Arabic name pronunciation hints", "Respell names so the voice says them well (needs listening tests).", "planned", None),
+ ("tone_profiles", "Voice and narration writing", "Tone profiles", "Calm, warm or urgent delivery per theme.", "planned", None),
+ ("breath_markup", "Voice and narration writing", "Breath and pause markup", "Author-marked pauses in story lines.", "planned", None),
+ ("emphasis", "Voice and narration writing", "Keyword emphasis", "Stress the one word that carries the line.", "planned", None),
+ # ---- Structure and arc
+ ("context_takeaway", "Structure and arc", "Context before, takeaway after", "Labelled editorial lines around the verse.", "done", ("script", "enabled")),
+ ("beat_map", "Structure and arc", "Emotional beat map", "Planned intensity per scene: curiosity, rise, turning point, release.", "done", ("script", "beat_map")),
+ ("arc_check", "Structure and arc", "Arc check", "Warns when nothing rises above the opening or the ending does not release (part of the beat-map switch).", "done", None),
+ ("skeleton", "Structure and arc", "Fixed skeleton", "Hook, context, verse, translation, takeaway, outro in every video.", "done", None),
+ ("series_teaser", "Structure and arc", "Part numbers and next-part line", "'Part 1 of 3: part 2 is next.' on split stories, outro and description.", "done", ("script", "series_teaser")),
+ ("story_split", "Structure and arc", "Long stories split into parts", "Cut at line boundaries, never edited.", "done", None),
+ ("chapter_marks", "Structure and arc", "Chapters", "Timestamped chapters in story descriptions.", "done", None),
+ ("callback_end", "Structure and arc", "Callback ending", "The last line echoes the hook.", "planned", None),
+ ("cliffhanger", "Structure and arc", "Chosen cliffhanger points", "Pick split points that leave a question open.", "planned", None),
+ ("three_act_drafts", "Structure and arc", "Three-act template for AI drafts", "Drafts follow setup, turn, resolution.", "planned", None),
+ # ---- Titles and descriptions
+ ("title_candidates", "Titles and descriptions", "Several title candidates", "Five per video, built from the theme and reference.", "done", None),
+ ("title_scoring", "Titles and descriptions", "Title scoring", "Best length, keyword and reference win; shouting and false promises lose.", "done", ("script", "title_scoring")),
+ ("title_choice", "Titles and descriptions", "Choose the title on the dashboard", "Pick any scored candidate on the video page.", "done", None),
+ ("description_styles", "Titles and descriptions", "Viral, classic or minimal descriptions", "Choose on the Settings page.", "done", None),
+ ("comment_prompt", "Titles and descriptions", "Reflective comment question", "One honest question in the outro and description (switch on the Look & Story page).", "done", None),
+ ("hashtag_logic", "Titles and descriptions", "Relevant hashtags", "Up to 15, only true ones (reciter only when used).", "done", None),
+ ("desc_chapters", "Titles and descriptions", "Chapters and evidence lines in the description", "Sources and verification are listed.", "done", None),
+ ("pinned_source", "Titles and descriptions", "Pinned comment with sources", "Post the sources as the first comment.", "planned", None),
+ ("ab_titles", "Titles and descriptions", "A/B title rotation", "Swap titles after a few days; keep the winner.", "planned", None),
+ ("urdu_title", "Titles and descriptions", "Urdu title and description", "A second-language title.", "planned", None),
+ # ---- Accuracy and safety in the script
+ ("editorial_lint", "Accuracy and safety in the script", "Editorial lint", "Flags promises, rulings, invented quotes, judging others, shouting, over-long or hard lines; a person must review them.", "done", ("script", "editorial_lint")),
+ ("no_invented_quotes", "Accuracy and safety in the script", "No invented quotations", "Quotation marks in editorial lines are flagged (part of the lint switch).", "done", None),
+ ("no_reward_promises", "Accuracy and safety in the script", "No reward or outcome promises", "'Guaranteed', 'you will be forgiven' and similar are flagged (part of the lint switch).", "done", None),
+ ("no_rulings", "Accuracy and safety in the script", "No rulings in editorial lines", "'You must', 'is haram' and similar are flagged (part of the lint switch).", "done", None),
+ ("verified_verse_text", "Accuracy and safety in the script", "Verse text verified", "Exact text checked against pinned editions.", "done", None),
+ ("claims_table", "Accuracy and safety in the script", "Claims table", "Every claim stored with source, translator, grade and review status.", "done", None),
+ ("claim_classes", "Accuracy and safety in the script", "A/B/C/D claim classes", "Established, interpretation, reconstruction, metaphor.", "done", None),
+ ("human_review", "Accuracy and safety in the script", "Human review of stories, hadith and AI drafts", "Never skipped.", "done", None),
+ ("depiction_guard", "Accuracy and safety in the script", "Forbidden-depiction guard", "Storyboards that mention prophets, angels, faces or Allah fail.", "done", None),
+ ("draft_support_check", "Accuracy and safety in the script", "Source-support check for AI drafts", "Each drafted line must be supported by the cited text.", "done", None),
+ # ---- Director: shot design
+ ("camera_library", "Director: shot design", "Twelve camera moves", "Each with a purpose (reveal, journey, scale).", "done", None),
+ ("camera_variety", "Director: shot design", "Camera variety lint", "No identical moves back to back; at least three kinds.", "done", None),
+ ("composition_rules", "Director: shot design", "Composition rules", "Thirds, low or high horizon, symmetry per treatment.", "done", None),
+ ("shot_purpose", "Director: shot design", "A purpose for every scene", "Scenes without a storytelling purpose fail the check.", "done", None),
+ ("faceless_cast", "Director: shot design", "Faceless cast only", "Only generic silhouettes can be staged.", "done", None),
+ ("three_d_budget", "Director: shot design", "3D budget by distinct looks", "3D seconds go to different-looking moments.", "done", None),
+ ("camera_family", "Director: shot design", "Camera family per treatment", "A treatment limits the camera to a coherent family.", "done", None),
+ ("ground_only_shots", "Director: shot design", "Ground-level shots only with ground actors", "No macro-feet shot of an empty sky.", "done", None),
+ ("shot_list_preview", "Director: shot design", "Shot list preview on the dashboard", "See the planned shots before rendering.", "planned", None),
+ ("storyboard_frames", "Director: shot design", "Storyboard thumbnails", "A contact sheet of planned frames.", "planned", None),
+ # ---- Director: pacing and rhythm
+ ("pace_profiles", "Director: pacing and rhythm", "Pace profiles", "Each treatment has a pace and minimum hold.", "done", None),
+ ("min_hold", "Director: pacing and rhythm", "Minimum hold per scene", "No scene is cut shorter than readable.", "done", None),
+ ("silence_ratio", "Director: pacing and rhythm", "Narration-free scenes", "Some scenes are left to ambience on purpose.", "done", None),
+ ("fast_pace_mode", "Director: pacing and rhythm", "Fast pace mode", "Tighter holds (switch on the Settings page).", "done", None),
+ ("hard_cap", "Director: pacing and rhythm", "Hard 59-second cap", "Lean retry if a render runs long.", "done", None),
+ ("beats_drive_pace", "Director: pacing and rhythm", "Beat map drives the pace", "Hold longer at the turning point, shorter in the build.", "planned", None),
+ ("variable_pace", "Director: pacing and rhythm", "Variable pace by section", "Slow on the verse, quick on context.", "planned", None),
+ ("interrupt", "Director: pacing and rhythm", "Pattern interrupt around 20 seconds", "A deliberate change to win back attention.", "planned", None),
+ ("breath_before_takeaway", "Director: pacing and rhythm", "A breath before the takeaway", "A beat of stillness before the lesson.", "planned", None),
+ ("loop_end", "Director: pacing and rhythm", "Loop-friendly ending", "The last frame flows into the first.", "planned", None),
+ # ---- Look and sound direction
+ ("style_library", "Look and sound direction", "Style library", "Grade, typography, transition and animation per treatment.", "done", None),
+ ("typography_personality", "Look and sound direction", "Typography personality", "Editorial, classical, luxury, calligraphic or educational.", "done", None),
+ ("transition_family", "Look and sound direction", "Transition family and colour", "Consistent cuts within a video.", "done", None),
+ ("lighting_overrides", "Look and sound direction", "Lighting overrides for 3D", "Sun and sky follow the treatment.", "done", None),
+ ("sound_plan", "Look and sound direction", "Sound plan with no music", "Ambience and effects only; recitation first.", "done", None),
+ ("quiet_ambience", "Look and sound direction", "Ambience lowers in silent scenes", "Quiet means quiet.", "done", None),
+ ("story_palette", "Look and sound direction", "One palette per story", "Consistent clothing and colour inside a story.", "done", None),
+ ("metaphor_engine", "Look and sound direction", "Metaphor engine", "Words map to light, water, pattern, labelled as metaphor.", "done", None),
+ ("treatment_look_preset", "Look and sound direction", "Look preset per treatment", "A treatment picks its finishing look automatically.", "planned", None),
+ ("sound_motifs", "Look and sound direction", "Sound motifs per theme", "A recurring quiet sound for each theme.", "planned", None),
+ # ---- Continuity and variety
+ ("direction_log", "Continuity and variety", "Direction log", "Recent cameras, transitions and styles are avoided.", "done", None),
+ ("character_consistency", "Continuity and variety", "Character design stays fixed", "Same palette across re-renders.", "done", None),
+ ("style_rotation", "Continuity and variety", "Style rotation", "Treatments rotate across videos.", "done", None),
+ ("topic_variety", "Continuity and variety", "Topic variety window", "Recent topics are not repeated.", "done", None),
+ ("text_rotation", "Continuity and variety", "Hook, title and CTA rotation", "No repeated wording.", "done", None),
+ ("production_bible", "Continuity and variety", "Production bible", "Atmosphere, materials and rules per video.", "done", None),
+ ("continuity_checklist", "Continuity and variety", "Continuity checklist", "Items needing a person are marked MANUAL, never ticked for you.", "done", None),
+ ("rerender_stable", "Continuity and variety", "Re-render keeps the design", "Same storyboard and palette.", "done", None),
+ ("series_identity", "Continuity and variety", "Visual identity per series", "Parts of one story share a look.", "planned", None),
+ ("seasonal_direction", "Continuity and variety", "Seasonal direction", "Ramadan and Jumu'ah mood.", "planned", None),
+ # ---- Review and learning loop
+ ("director_package", "Review and learning loop", "Director's package", "Markdown and JSON next to every story video.", "done", None),
+ ("film_plan", "Review and learning loop", "Film plan and frame records", "Scene blocks, production table and prompts.", "done", None),
+ ("engagement_score", "Review and learning loop", "Pre-publication score", "A transparent heuristic, never a substitute for accuracy.", "done", None),
+ ("script_lab", "Review and learning loop", "Script lab on the dashboard", "Preview hooks, titles, lint and the spoken version without rendering.", "done", None),
+ ("hook_insights", "Review and learning loop", "Hook insights", "Which hook shapes earn views, once stats exist.", "done", None),
+ ("review_queue", "Review and learning loop", "Review queue and approve", "Everything that needs a person waits there.", "done", None),
+ ("edit_before_upload", "Review and learning loop", "Edit title, description and tags", "Before anything goes out.", "done", None),
+ ("candidate_audit", "Review and learning loop", "Audit trail of candidates", "All scored hooks and titles are stored.", "done", None),
+ ("reweight_scoring", "Review and learning loop", "Learn from analytics", "Re-weight scoring from real results.", "planned", None),
+ ("retention_feedback", "Review and learning loop", "Retention-curve feedback", "Needs the YouTube Analytics API.", "planned", None),
+]
+SCRIPT_FEATURES = [dict(id=("s_" + i if i in {f["id"] for f in FEATURES} else i), category=c, name=n, desc=d, status=s, cfg=p) for i, c, n, d, s, p in _S]
+SCRIPT_CATEGORIES = list(dict.fromkeys(f["category"] for f in SCRIPT_FEATURES))
+
+def script_counts() -> dict:
+    return {"total": len(SCRIPT_FEATURES), "done": sum(f["status"] == "done" for f in SCRIPT_FEATURES), "planned": sum(f["status"] == "planned" for f in SCRIPT_FEATURES),
+            "switchable": sum(f["status"] == "done" and f["cfg"] is not None for f in SCRIPT_FEATURES)}
+
+SCRIPT_PRESETS = {
+    "balanced": {"hook_variants": True, "hook_brevity": True, "title_scoring": True, "spoken_style": True, "editorial_lint": True, "series_teaser": True, "beat_map": True, "enabled": True},
+    "plain": {"hook_variants": False, "hook_brevity": False, "title_scoring": False, "spoken_style": False, "editorial_lint": True, "series_teaser": False, "beat_map": False, "enabled": True},
+}
