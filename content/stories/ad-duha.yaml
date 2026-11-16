@@ -1,0 +1,61 @@
+# DRAFT written by the script assistant. REVIEW every line against its source, then move to content/stories/.
+id: ad-duha
+title: Surah Ad-Duha
+theme: hope and reassurance
+hook: What does Ad-Duha ask us to reflect on?
+hook_candidates:
+- What can we learn from Ad-Duha?
+- Have you reflected on Ad-Duha?
+sources:
+- Quran 93:1-11 (Ad-Duha)
+lines:
+- scene: desert_dawn
+  action: none
+  quran: '93:1'
+  expect: glorious
+- scene: night_sea
+  action: none
+  quran: '93:2'
+  expect: still
+- scene: desert_dawn
+  action: none
+  quran: '93:3'
+  expect: displeased
+- scene: desert_dawn
+  action: none
+  quran: '93:4'
+  expect: hereafter
+- scene: desert_dawn
+  action: none
+  quran: '93:5'
+  expect: wherewith
+- scene: desert_dawn
+  action: none
+  quran: '93:6'
+  expect: shelter
+- scene: desert_dawn
+  action: none
+  quran: '93:7'
+  expect: wandering
+- scene: desert_dawn
+  action: none
+  quran: '93:8'
+  expect: independent
+- scene: desert_dawn
+  action: none
+  quran: '93:9'
+  expect: therefore
+- scene: desert_dawn
+  action: none
+  quran: '93:10'
+  expect: petitioner
+- scene: desert_dawn
+  action: none
+  quran: '93:11'
+  expect: proclaim
+takeaway:
+  en: Reflect on the ayat of Ad-Duha and what they teach us.
+  ur: ''
+draft:
+  generated_by: fallback
+  needs_human_review: true
